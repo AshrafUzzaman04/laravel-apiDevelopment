@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\section;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SectionController extends Controller
 {
@@ -12,15 +13,8 @@ class SectionController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $section = section::all();
+        return response()->json($section);
     }
 
     /**
@@ -28,38 +22,53 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            "class_id" => "required|integer",
+            "section_name" => "required|unique:sections",
+        ]);
+
+        section::create($request->all());
+
+        return response("Created");
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(section $section)
+    public function show(int $id)
     {
-        //
-    }
+        $section =  section::find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(section $section)
-    {
-        //
+        return response()->json($section);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, section $section)
+    public function update(Request $request, int $id)
     {
-        //
+        $request->validate([
+            "class_id" => "required",
+            "section_name" => "required",
+        ]);
+
+        // DB::table("sections")->where("id", $id)->update($req);
+        section::where("id", $id)->update([
+            "class_id" => $request->class_id,
+            "section_name" => $request->section_name,
+        ]);
+
+        return response("updated");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(section $section)
+    public function destroy(int $id)
     {
-        //
+        $section =  section::find($id);
+        $section->delete();
+
+        return response("deleted");
     }
 }
